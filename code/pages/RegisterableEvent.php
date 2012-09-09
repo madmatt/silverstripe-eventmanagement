@@ -160,7 +160,7 @@ class RegisterableEvent extends CalendarEvent {
 		return $fields;
 	}
 
-	public function fieldLabels() {
+	public function fieldLabels($includerelations = true) {
 		return array_merge(parent::fieldLabels(), array(
 			'TicketTypesHeader' => _t('EventManagement.TICKETTYPES', 'Ticket Types'),
 			'Registrations' => _t('EventManagement.REGISTATIONS', 'Registrations'),

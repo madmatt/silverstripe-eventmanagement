@@ -51,16 +51,14 @@ class EventRegistration extends DataObject {
 		$fields->removeByName('Total');
 		$fields->removeByName('Token');
 		$fields->removeByName('TimeID');
-
-		$fields->addFieldToTab('Root.Tickets', $tickets = new TableListField(
+		
+		$fields->addFieldToTab('Root.Tickets', $tickets = new GridField(
 			'Tickets',
-			'EventTicket',
-			array(
-				'Title'        => 'Ticket Title',
-				'PriceSummary' => 'Price',
-				'Quantity'     => 'Quantity'
-			)));
-		$tickets->setCustomSourceItems($this->Tickets());
+			null,
+			DataList::create('EventTicket')
+		));
+		
+		$tickets->getConfig()->getComponentByType('GridFieldPaginator')->setItemsPerPage(50);
 
 		if (class_exists('Payment')) {
 			$fields->addFieldToTab('Root.Tickets', new ReadonlyField(

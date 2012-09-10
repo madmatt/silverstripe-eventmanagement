@@ -208,6 +208,16 @@ class RegisterableDateTime extends CalendarDateTime {
 			$_email->send();
 		}
 	}
+	
+	/**
+	 * Returns the StartDate and StartTime, but in the same format that the PHP function time() uses
+	 * (EPOCH - seconds since 1900-01-01) 
+	 * @return int
+	 */
+	public function getStartTimestamp() {
+		$field = DBField::create_field('SS_Datetime', date($this->StartDate . " " . $this->StartTime));
+		return strtotime($field->getValue());
+	}
 
 	/**
 	 * Returns the overall number of places remaining at this event, TRUE if
@@ -239,7 +249,7 @@ class RegisterableDateTime extends CalendarDateTime {
 	 * @return string
 	 */
 	public function Summary() {
-		$date = implode(' ', CalendarUtil::getDateString($this->StartDate, $this->EndDate));
+		$date = implode(' ', CalendarUtil::get_date_string($this->StartDate, $this->EndDate));
 
 		if ($this->is_all_day) {
 			return sprintf(_t('EventManagement.DATEALLDAY', '%s (all day)'), $date);

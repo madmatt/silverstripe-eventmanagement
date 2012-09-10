@@ -57,7 +57,7 @@ class EventTimeDetailsController extends Page_Controller {
 	 * @return string
 	 */
 	public function Title() {
-		return $this->DateTime()->EventTitle();
+		return $this->DateTime()->getTitle();
 	}
 
 	/**

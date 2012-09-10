@@ -55,9 +55,9 @@ class RegisterableEvent extends CalendarEvent {
 
 		$fields = parent::getCMSFields();
 
-		$fields->addFieldsToTab('Root.Content.Tickets', array(
+		$fields->addFieldsToTab('Root.Tickets', array(
 			new HeaderField('TicketTypesHeader', $this->fieldLabel('TicketTypesHeader')),
-			new ComplexTableField($this, 'Tickets', 'EventTicket')
+			new GridField('Tickets', null, DataList::create('EventTicket'), GridFieldConfig_RecordEditor::create())
 		));
 
 		$generators = ClassInfo::implementorsOf('EventRegistrationTicketGenerator');
@@ -67,7 +67,7 @@ class RegisterableEvent extends CalendarEvent {
 				$generators[$generator] = $instance->getGeneratorTitle();
 			}
 
-			$fields->addFieldsToTab('Root.Content.Tickets', array(
+			$fields->addFieldsToTab('Root.Tickets', array(
 				new HeaderField('TicketGeneratorHeader', 'Ticket Generator'),
 				new LiteralField('TicketGeneratorNone', '<p>The ticket '
 					. 'generator is used to generate a ticket file for the '
@@ -78,7 +78,7 @@ class RegisterableEvent extends CalendarEvent {
 		}
 
 		$changeFields = singleton('RegisterableDateTime')->fieldLabels(false);
-		$fields->addFieldsToTab('Root.Content.Registration', array(
+		$fields->addFieldsToTab('Root.Registration', array(
 			new HeaderField('RegistrationSettingsHeader', $this->fieldLabel('RegistrationSettingsHeader')),
 			new CheckboxField('OneRegPerEmail', $this->fieldLabel('OneRegPerEmail')),
 			new CheckboxField('RequireLoggedIn', $this->fieldLabel('RequireLoggedIn')),
@@ -96,35 +96,33 @@ class RegisterableEvent extends CalendarEvent {
 			new CheckboxSetField('NotifyChangeFields', $this->fieldLabel('NotifyChangeFields'), $changeFields)
 		));
 
-		$fields->addFieldsToTab('Root.Content.AfterRegistration', array(
+		$fields->addFieldsToTab('Root.AfterRegistration', array(
 			new TextField('AfterRegTitle', $this->fieldLabel('AfterRegTitle')),
 			new HtmlEditorField('AfterRegContent', $this->fieldLabel('AfterRegContent'))
 		));
 
-		$fields->addFieldsToTab('Root.Content.AfterUnregistration', array(
+		$fields->addFieldsToTab('Root.AfterUnregistration', array(
 			new TextField('AfterUnregTitle', $this->fieldLabel('AfterUnregTitle')),
 			new HtmlEditorField('AfterUnregContent', $this->fieldLabel('AfterUnregContent'))
 		));
 
-		$registrations = new ComplexTableField(
-			$this, 'Registrations', 'EventRegistration',
-			null, null,
-			'"Status" = \'Valid\' AND "Time"."EventID" = ' . $this->ID,
+		$registrations = new GridField(
+			'Registrations',
 			null,
-			'INNER JOIN "CalendarDateTime" AS "Time" ON "Time"."ID" = "TimeID"'
+			DataList::create('EventRegistration')->filter(array(
+				'Status' => 'Valid',
+				'Time.EventID:ExactMatch' => $this->ID
+			))
 		);
-		$registrations->setTemplate('EventRegistrationComplexTableField');
-		$registrations->setPermissions(array('show', 'delete', 'print', 'export'));
-
-		$canceled = new ComplexTableField(
-			$this, 'Registations', 'EventRegistration',
-			null, null,
-			'"Status" = \'Canceled\' AND "Time"."EventID" = ' . $this->ID,
+		
+		$canceled = new GridField(
+			'CancelledRegistrations',
 			null,
-			'INNER JOIN "CalendarDateTime" AS "Time" ON "Time"."ID" = "TimeID"'
+			DataList::create('EventRegistration')->filter(array(
+				'Status' => 'Canceled',
+				'Time.EventID:ExactMatch' => $this->ID
+			))
 		);
-		$canceled->setTemplate('EventRegistrationComplexTableField');
-		$canceled->setPermissions(array('show', 'print', 'export'));
 
 		$fields->addFieldToTab('Root', new Tab('Registrations'), 'Behaviour');
 		$fields->addFieldsToTab('Root.Registrations', array(
@@ -134,15 +132,14 @@ class RegisterableEvent extends CalendarEvent {
 		));
 
 		if ($this->RegEmailConfirm) {
-			$unconfirmed = new ComplexTableField(
-				$this, 'UnconfirmedRegistations', 'EventRegistration',
-				null, null,
-				'"Status" = \'Unconfirmed\' AND "Time"."EventID" = ' . $this->ID,
+			$unconfirmed = new GridField(
+				'UnconfirmedRegistrations',
 				null,
-				'INNER JOIN "CalendarDateTime" AS "Time" ON "Time"."ID" = "TimeID"'
+				DataList::create('EventRegistration')->filter(array(
+					'Status' => 'Unconfirmed',
+					'Time.EventID:ExactMatch' => $this->ID
+				))
 			);
-			$unconfirmed->setPermissions(array('show', 'print', 'export'));
-			$unconfirmed->setTemplate('EventRegistrationComplexTableField');
 
 			$fields->addFieldToTab('Root.Registrations', new ToggleCompositeField(
 				'UnconfirmedRegistrations', 'Unconfirmed Registrations', $unconfirmed

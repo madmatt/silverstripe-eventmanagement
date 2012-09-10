@@ -19,7 +19,7 @@ class EventRegistrationTicketsTableField extends FormField {
 		parent::__construct($name, '', $value);
 	}
 
-	public function Field() {
+	public function Field($properties = array()) {
 		return $this->renderWith('EventRegistrationTicketsTableField');
 	}
 
@@ -91,7 +91,7 @@ class EventRegistrationTicketsTableField extends FormField {
 	 * @return DataObjectSet
 	 */
 	public function Tickets() {
-		$result  = new DataObjectSet();
+		$result  = new ArrayList();
 		$tickets = $this->datetime->Tickets('', '"RegisterableDateTime_Tickets"."Sort"');
 
 		foreach ($tickets as $ticket) {

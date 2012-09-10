@@ -35,10 +35,10 @@ class EventUnregisterController extends Page_Controller {
 		return new Form(
 			$this,
 			'UnregisterForm',
-			new FieldSet(new EmailField(
-				'Email', _t('EventManagement.EMAILADDR', 'Email address'))),
-			new FieldSet(new FormAction(
-				'doUnregister', _t('EventManagement.UNREGISTER', 'Un-register'))),
+			new FieldList(array(new EmailField(
+				'Email', _t('EventManagement.EMAILADDR', 'Email address')))),
+			new FieldList(array(new FormAction(
+				'doUnregister', _t('EventManagement.UNREGISTER', 'Un-register')))),
 			new RequiredFields('Email'));
 	}
 

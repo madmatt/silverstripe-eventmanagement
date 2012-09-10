@@ -22,14 +22,20 @@ class EventInvitationField extends FormField {
 	 */
 	public function __construct($parent, $name) {
 		parent::__construct($name);
-
-		$this->table = new TableListField('Invites', 'EventInvitation', null, sprintf(
-			'"EventID" = %d', $parent->ID
-		));
-		$this->table->setPermissions(array('show', 'export', 'print'));
+		
+		$this->table = new GridField('Invites', null, DataList::create('EventInvitation')->filter(array('EventID' => $parent->ID)));
+	}
+	
+	/**
+	 * Filler method to ensure that the GridField() that is used to actually hold the Invites also has it's Form value set
+	 * @param Form $form 
+	 */
+	public function setForm($form) {
+		parent::setForm($form);
+		$this->table->setForm($form);
 	}
 
-	public function FieldHolder() {
+	public function FieldHolder($properties = array()) {
 		Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
 		Requirements::javascript('eventmanagement/javascript/EventInvitationField.js');
 
@@ -99,19 +105,15 @@ class EventInvitationField extends FormField {
 					'PastTimeID', '', $pastTimes, null, null, true)
 			)),
 			new HeaderField('EmailsToSendHeader', 'People To Send Invite To'),
-			$emails = new TableField('Emails', 'EventInvitation', array(
-				'Name'  => 'Name',
-				'Email' => 'Email Address'
-			), array(
-				'Name'  => 'TextField',
-				'Email' => 'TextField'
-			))
+			
+			$emails = new GridField('Emails', null, DataList::create('EventInvitation'))
 		);
 
 		$group->addExtraClass(sprintf("{ link: '%s' }", $this->Link('loadfromgroup')));
 		$time->addExtraClass(sprintf("{ link: '%s' }", $this->Link('loadfromtime')));
-
-		$emails->setCustomSourceItems(new DataObjectSet());
+		
+		$emails->getConfig()->addComponent($emailDataColumns = new GridFieldDataColumns());
+		$emailDataColumns->setDisplayFields(array('Name' => 'Name', 'Email' => 'Email Address'));
 
 		$fields    = new FieldSet(new TabSet('Root', $fields));
 		$validator = new RequiredFields('TimeID');

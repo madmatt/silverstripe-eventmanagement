@@ -69,17 +69,17 @@ class EventRegisterController extends Page_Controller {
 
 		if ($datetime->getStartTimestamp() < time()) {
 			$data = array(
-				'Title'   => $datetime->EventTitle() . ' Has Already Happened',
+				'Title'   => $datetime->getTitle() . ' Has Already Happened',
 				'Content' => '<p>You can no longer register for this event.</p>'
 			);
 		} elseif ($datetime->getRemainingCapacity($exclude)) {
 			$data = array(
-				'Title' => 'Register For ' . $datetime->EventTitle(),
+				'Title' => 'Register For ' . $datetime->getTitle(),
 				'Form'  => $this->RegisterForm()
 			);
 		} else {
 			$data = array(
-				'Title'   => $datetime->EventTitle() . ' Is Full',
+				'Title'   => $datetime->getTitle() . ' Is Full',
 				'Content' => '<p>There are no more places available at this event.</p>'
 			);
 		}
